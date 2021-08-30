@@ -16,6 +16,8 @@ Station = Base.classes.station
 
 from flask import Flask, jsonify
 
+session = Session(engine)
+
 #Create the app
 app = Flask(__name__) 
 
@@ -34,19 +36,20 @@ def home():
 @app.route("/api/v1.0/precipitation")
 def precipitation():
 
-    session = Session(engine)
-
 #Retrieve Data in JSON format
-
     results = session.query(Measurement.date, Measurement.prcp).\
-        filter(Measurement.date >= "2016-08-23").\
-        filter(Measurement.date).all()
-
-    precipitation_list = [results]
+        filter(Measurement.date >= "2016-08-23").all()
 
     session.close()
 
-    return jsonify(precipitation_list)
+    precipitation_list = []
+    PrecipitationbyDate = {}
+
+    for x in results:
+        PrecipitationbyDate[x[0]] = x[1]
+        print(x[0])
+
+    return jsonify(PrecipitationbyDate)
 
 @app.route("/api/v1.0/stations")
 def stations():
